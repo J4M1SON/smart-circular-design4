@@ -1,7 +1,8 @@
 
 import { GoogleGenAI } from "@google/genai";
 
-const API_KEY = process.env.API_KEY || "";
+//const API_KEY = process.env.API_KEY || "";
+const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || "";
 
 export const transformPlanToCircular = async (idea: string): Promise<string> => {
   if (!API_KEY) throw new Error("API key not configured");
