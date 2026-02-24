@@ -20,9 +20,9 @@ const Hero: React.FC<HeroProps> = ({ onStart }) => {
         </div>
         
         <h1 className="text-5xl md:text-7xl font-extrabold tracking-tighter mb-8 leading-[1.1]">
-          <span className="block text-slate-100">O Futuro do Design é</span>
+          <span className="block text-slate-100">O Futuro da Economia é</span>
           <span className="block brand-gradient-text">
-            Circular e Inteligente
+            Circular com Design Inteligente
           </span>
         </h1>
         
