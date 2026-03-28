@@ -1,10 +1,9 @@
 
 import { GoogleGenAI } from "@google/genai";
 
-//const API_KEY = process.env.API_KEY || "";
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || "";
+const API_KEY = process.env.API_KEY || "";
 
-export const transformPlanToCircular = async (idea: string): Promise<string> => {
+export const transformPlanToCircular = async (idea: string, file?: File): Promise<string> => {
   if (!API_KEY) throw new Error("API key not configured");
 
   const ai = new GoogleGenAI({ apiKey: API_KEY });
@@ -14,6 +13,7 @@ export const transformPlanToCircular = async (idea: string): Promise<string> => 
     Transforme a seguinte ideia de negócio tradicional em um modelo de Economia Circular avançado.
     
     Ideia Original: "${idea}"
+    ${file ? "Analise também o documento PDF anexo para complementar sua estratégia." : ""}
     
     Sua resposta deve seguir esta estrutura rigorosa em Markdown:
     
@@ -33,9 +33,29 @@ export const transformPlanToCircular = async (idea: string): Promise<string> => 
   `;
 
   try {
+    const parts: any[] = [{ text: prompt }];
+
+    if (file) {
+      const base64Data = await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const base64 = (reader.result as string).split(',')[1];
+          resolve(base64);
+        };
+        reader.readAsDataURL(file);
+      });
+
+      parts.push({
+        inlineData: {
+          data: base64Data,
+          mimeType: file.type
+        }
+      });
+    }
+
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
-      contents: prompt,
+      contents: { parts },
       config: {
         temperature: 0.7,
         topK: 40,

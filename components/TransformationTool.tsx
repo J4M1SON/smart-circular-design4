@@ -10,25 +10,37 @@ interface TransformationToolProps {
 
 const TransformationTool: React.FC<TransformationToolProps> = ({ onSave }) => {
   const [idea, setIdea] = useState('');
+  const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isExporting, setIsExporting] = useState(false);
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0];
+    if (selectedFile && selectedFile.type === 'application/pdf') {
+      setFile(selectedFile);
+      setError(null);
+    } else if (selectedFile) {
+      setError('Por favor, anexe apenas arquivos PDF.');
+      setFile(null);
+    }
+  };
+
   const handleTransform = async () => {
-    if (!idea.trim()) return;
+    if (!idea.trim() && !file) return;
     
     setLoading(true);
     setError(null);
     setResult(null);
 
     try {
-      const circularPlan = await transformPlanToCircular(idea);
+      const circularPlan = await transformPlanToCircular(idea, file || undefined);
       setResult(circularPlan);
       
       const newResult: TransformationResult = {
         id: Math.random().toString(36).substring(7),
-        originalIdea: idea,
+        originalIdea: idea || (file ? `Documento PDF: ${file.name}` : ''),
         circularPlan,
         createdAt: Date.now(),
         benefits: {
@@ -142,7 +154,7 @@ const TransformationTool: React.FC<TransformationToolProps> = ({ onSave }) => {
             </div>
             <h2 className="text-3xl font-bold text-white">Laboratório Circular</h2>
           </div>
-          <p className="text-slate-400 mb-10 text-lg">Descreva seu processo atual ou nova ideia para receber a arquitetura regenerativa.</p>
+          <p className="text-slate-400 mb-10 text-lg">Descreva seu processo atual ou nova ideia (ou anexe um PDF) para receber a arquitetura regenerativa.</p>
           
           <div className="space-y-8">
             <div className="relative group">
@@ -152,16 +164,42 @@ const TransformationTool: React.FC<TransformationToolProps> = ({ onSave }) => {
                 placeholder="Ex: Minha empresa de moda utiliza algodão convencional e tem alto descarte de sobras têxteis..."
                 className="w-full h-56 bg-white/[0.02] border border-white/10 rounded-3xl p-8 text-slate-200 placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-[#8C8955]/30 focus:border-[#8C8955]/50 transition-all resize-none text-lg leading-relaxed"
               />
-              <div className="absolute bottom-6 right-8 text-xs font-mono text-slate-500 uppercase tracking-widest">
-                Input: {idea.length} bytes
+              <div className="absolute bottom-6 right-8 flex items-center gap-4">
+                <label className="cursor-pointer flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all group/file">
+                  <input 
+                    type="file" 
+                    accept=".pdf" 
+                    onChange={handleFileChange} 
+                    className="hidden" 
+                  />
+                  <svg className={`w-4 h-4 ${file ? 'text-green-400' : 'text-slate-400 group-hover/file:text-[#8C8955]'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                  </svg>
+                  <span className={`text-xs font-medium ${file ? 'text-green-400' : 'text-slate-500 group-hover/file:text-slate-300'}`}>
+                    {file ? file.name : 'Anexar PDF'}
+                  </span>
+                  {file && (
+                    <button 
+                      onClick={(e) => { e.preventDefault(); setFile(null); }}
+                      className="ml-1 text-slate-500 hover:text-red-400"
+                    >
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  )}
+                </label>
+                <div className="text-xs font-mono text-slate-500 uppercase tracking-widest">
+                  Input: {idea.length} bytes
+                </div>
               </div>
             </div>
             
             <button
               onClick={handleTransform}
-              disabled={loading || !idea}
+              disabled={loading || (!idea && !file)}
               className={`w-full py-5 rounded-2xl font-bold text-xl flex items-center justify-center transition-all duration-300 ${
-                loading || !idea 
+                loading || (!idea && !file)
                 ? 'bg-white/5 text-slate-600 cursor-not-allowed' 
                 : 'btn-brand shadow-2xl'
               }`}
