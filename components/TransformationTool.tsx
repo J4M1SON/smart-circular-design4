@@ -188,10 +188,13 @@ const TransformationTool: React.FC<TransformationToolProps> = ({ onSave }) => {
                       </svg>
                     </button>
                   )}
-                </label>
-                <div className="text-xs font-mono text-slate-500 uppercase tracking-widest">
-                  Input: {idea.length} bytes
-                </div>
+                  </label>
+                  {file && (
+                    <div className="text-xs font-mono text-green-400 uppercase tracking-widest">
+                    PDF: {(file.size / 1024).toFixed(2)} KB
+                    </div>
+                   )}
+              
               </div>
             </div>
             
