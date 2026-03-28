@@ -3,8 +3,8 @@ import { createClient } from '@supabase/supabase-js';
 import { TransformationResult } from '../types';
 
 // Estes valores seriam injetados via variáveis de ambiente em produção
-const SUPABASE_URL = process.env.SUPABASE_URL || '';
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || '';
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
 const isConfigured = SUPABASE_URL && SUPABASE_ANON_KEY;
 const supabase = isConfigured ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;

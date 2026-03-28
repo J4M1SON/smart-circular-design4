@@ -188,13 +188,10 @@ const TransformationTool: React.FC<TransformationToolProps> = ({ onSave }) => {
                       </svg>
                     </button>
                   )}
-                  </label>
-                              {/*As 5 linhas abaixo eu acrescentei e apaguei as 3 que estavam/ tirei foto para não se perder*/}
-                {file && (
-                    <div className="text-xs font-mono text-slate-500 uppercase tracking-widest">
-                        PDF: {(file.size / 1024).toFixed(2)} KB
-                    </div>
-                )}
+                </label>
+                <div className="text-xs font-mono text-slate-500 uppercase tracking-widest">
+                  Input: {idea.length} bytes
+                </div>
               </div>
             </div>
             
